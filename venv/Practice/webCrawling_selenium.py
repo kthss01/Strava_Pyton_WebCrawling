@@ -26,7 +26,17 @@ sleep(0.5)
 driver.find_element_by_xpath('//*[@id="identifierNext"]/div/button/div[2]').click()
 
 # 비밀번호 입력 받기
-import getpass
+import sys
+import msvcrt
 
-password = input('비밀번호 입력: ')
+password = ''
+while True:
+    x = ord(msvcrt.getch())
+    if x == 13: # Enter 개행 문자
+        break
+    sys.stdout.write('*')
+    password += chr(x)
 
+print(password)
+sleep(0.5)
+driver.find_element_by_name('password').send_keys(id)
