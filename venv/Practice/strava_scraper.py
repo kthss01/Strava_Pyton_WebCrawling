@@ -87,6 +87,9 @@ class Scraper:
         # 크롬 웹드라이버 설정
         self.driver = webdriver.Chrome(self.PATH)
 
+        # 크롬 드라이버 위치 오른쪽으로 붙이기
+        self.driver.set_window_position(1920 / 2 + 20, 0)  # 전체 해상도 1920 1080에서 오른쪽 절반으로 x 이동
+
         # 페이지 로딩이 완료되기까지 몇 초 기다릴지 정하기
         self.driver.implicitly_wait(3)
 
@@ -118,14 +121,25 @@ class Scraper:
         self.driver.find_element_by_css_selector('#passwordNext > div > button > div.VfPpkd-RLmnJb').click()
         sleep(0.5)
 
-        # 2단계 인증시 처리
-        # 다시 요청 취소
-        # self.driver.find_element_by_css_selector('#toggle-c3').click()
+        # 비밀번호 틀리면 종료
+        if not EC.url_to_be():
+            sleep(0.5)
+            self.driver.quit()
+            return False
+
+        else:
+            # 2단계 인증시 처리
+            # 다시 요청 취소
+            # self.driver.find_element_by_css_selector('#toggle-c3').click()
+            return True
 
     def make_activity(self):
         """내 활동에서 필요한 데이터 스크레핑"""
         sport = self.driver.find_element_by_css_selector('#heading > header > h2 > span').text
-        # sport = sport[sport.find('-')+2:]  # 앞에 이름 - 제거
+        if '라이딩' in sport:
+            sport = '라이딩'
+        elif '걷기' in sport:
+            sport = '걷기'
 
         date = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > time').text
         location = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > span').text
@@ -136,7 +150,11 @@ class Scraper:
 
         if '라이딩' in sport:
             # 더보기 버튼 클릭
-            self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > button').click()
+            more_btn = self.driver.find_element_by_css_selector('#heading > div > div.row.no-margins.activity-summary-container > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1)')
+            # 더보기 div가 block 디스플레이라 클릭을 해야하는 경우 클릭
+            style = more_btn.get_attribute('style')
+            if 'block' in more_btn.get_attribute('style'):
+                more_btn.find_element('button').click()
 
             altittude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
             calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody.show-more-block-js.hidden > tr > td').text
@@ -179,10 +197,15 @@ class Scraper:
 
         # 비공개 체크
         self.driver.find_element_by_css_selector('#search-filters > label:nth-child(2)').click()
-        sleep(1)
+        sleep(2)
 
         while True:
             # 내 활동들 모두 접근해서 정보 가져오기
+            # 접근하기 전에 잠시 기다리기
+            WebDriverWait(self.driver, 5).until(
+                EC.text_to_be_present_in_element((By.CSS_SELECTOR, '.col-title > a'), '배민 알바')
+            )
+
             elements = self.driver.find_elements_by_css_selector('.col-title > a')
             # print(len(elements))
 
@@ -220,6 +243,6 @@ class Scraper:
 if __name__ == '__main__':
     scraper = Scraper()
 
-    scraper.google_login()
-
-    scraper.scraping_activities()
+    # 로그인이 성공하면 진행
+    if scraper.google_login():
+        scraper.scraping_activities()
