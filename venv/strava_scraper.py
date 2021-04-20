@@ -78,7 +78,7 @@ class Scraper:
     """Scraping 클래스"""
 
     # 절대 경로로 가져오기
-    PATH = os.path.abspath("../chromedriver")
+    PATH = os.path.abspath("chromedriver")
     LOGIN_URL = 'http://www.strava.com/login'
     ID = 'kthtim0704@gmail.com'
     PASSWORD = ''
@@ -122,16 +122,19 @@ class Scraper:
         sleep(0.5)
 
         # 비밀번호 틀리면 종료
-        if not EC.url_to_be():
-            sleep(0.5)
-            self.driver.quit()
-            return False
+        # if '비밀번호' in self.driver.find_element_by_css_selector('#view_container > div > div > div.pwWryf.bxPAYd > div > div.WEQkZc > div > form > span > section > div > div > div.SdBahf.VxoKGd.Jj6Lae > div.OyEIQ.uSvLId > div:nth-child(2) > span').text:
+        #     EC.url_to_be()
+        #     sleep(0.5)
+        #     self.driver.quit()
+        #     return False
+        #
+        # else:
+        #     # 2단계 인증시 처리
+        #     # 다시 요청 취소
+        #     # self.driver.find_element_by_css_selector('#toggle-c3').click()
+        #     return True
 
-        else:
-            # 2단계 인증시 처리
-            # 다시 요청 취소
-            # self.driver.find_element_by_css_selector('#toggle-c3').click()
-            return True
+        return True
 
     def make_activity(self):
         """내 활동에서 필요한 데이터 스크레핑"""
@@ -153,7 +156,7 @@ class Scraper:
             more_btn = self.driver.find_element_by_css_selector('#heading > div > div.row.no-margins.activity-summary-container > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1)')
             # 더보기 div가 block 디스플레이라 클릭을 해야하는 경우 클릭
             style = more_btn.get_attribute('style')
-            if 'block' in more_btn.get_attribute('style'):
+            if style == '' or 'block' in style:
                 more_btn.find_element('button').click()
 
             altittude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
