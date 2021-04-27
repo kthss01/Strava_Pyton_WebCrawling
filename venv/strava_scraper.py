@@ -3,7 +3,7 @@ Strava Scraper
 selenium을 이용하여 구글 로그인을 한 후
 내 Strava 운동 기록 정보에서 원하는 정보를 Scraping 해오기
 """
-
+import json
 import os.path
 from selenium import webdriver
 from time import sleep
@@ -12,12 +12,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import  WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+import pickle
 
 
 class Activity:
     """Activity 클래스 (활동 클래스)"""
 
-    def __init__(self, sport, date, location, title, description, distance,
+    def __init__(self, sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time):
         self.user = "태훈 김"
 
@@ -26,6 +27,7 @@ class Activity:
         self.location = location
         self.title = title
         self.description = description
+        self.delivery_count = delivery_count
         self.distance = distance
         self.moving_time = moving_time
         self.altitude = altitude
@@ -34,18 +36,22 @@ class Activity:
 
     def __str__(self):
         return f"스포츠: {self.sport}, 제목: {self.title}, 날짜: {self.date}, 위치: {self.location}\n" + \
-               f"내용: {self.description}, 이동 시간: {self.moving_time}, 고도: {self.altitude}\n" + \
+               f"내용: {self.description}, 배달 건수 : {self.delivery_count}, 이동 시간: {self.moving_time}, 고도: {self.altitude}\n" + \
                f"칼로리: {self.calory}, 경과 시간: {self.total_time}\n"
 
+    def dict(self):
+        return {"sport" : self.sport, "date" : self.date, "location" : self.location, "title" : self.title,
+                "description" : self.description, "delivery_count" : self.delivery_count, "distance" : self.distance,
+                "moving_time" : self.moving_time, "altitude" : self.altitude, "calory" : self.calory, "total_time" : self.total_time}
 
 class Riding(Activity):
     """Riding Activity 클래스 (활동 클래스 중 라이딩 클래스)"""
 
-    def __init__(self, sport, date, location, title, description, distance,
+    def __init__(self, sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time,
                  power, energy, avg_speed, max_speed):
 
-        super().__init__(sport, date, location, title, description, distance,
+        super().__init__(sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time)
 
         self.power = power
@@ -58,21 +64,28 @@ class Riding(Activity):
                f"평균 파워: {self.power}, 에너지 출력: {self.energy}\n" + \
                f"평균 속도: {self.avg_speed}, 최대 속도: {self.max_speed}"
 
+    def dict(self):
+        dictionary = {"power" : self.power, "energy" : self.energy, "avg_speed" : self.avg_speed, "max_speed" : self.max_speed}
+        return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
 
 class Walking(Activity):
     """Walking Activity 클래스 (활동 클래스 중 걷기 클래스)"""
 
-    def __init__(self, sport, date, location, title, description, distance,
+    def __init__(self, sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time,
                  pace):
 
-        super().__init__(sport, date, location, title, description, distance,
+        super().__init__(sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time)
 
         self.pace = pace
 
     def __str__(self):
         return super().__str__() + f"페이스: {self.pace}"
+
+    def dict(self):
+        dictionary = {"pace" : self.pace}
+        return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
 
 class Scraper:
     """Scraping 클래스"""
@@ -147,7 +160,14 @@ class Scraper:
         date = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > time').text
         location = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > span').text
         title = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > h1').text
-        description = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > div.activity-description-container > div > div > p').text
+        description_str = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > div.activity-description-container > div > div > p').text
+        descriptions = description_str.split('\n')
+        delivery_count = descriptions[0]  # 내용에서 배달 건수 분리
+        description = ""
+        # 내용이 따로 있으면 추가
+        if len(descriptions) > 1:
+            description = descriptions[1]
+
         distance = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(1) > strong').text
         moving_time = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(2) > strong').text
 
@@ -157,7 +177,7 @@ class Scraper:
             # 더보기 div가 block 디스플레이라 클릭을 해야하는 경우 클릭
             style = more_btn.get_attribute('style')
             if style == '' or 'block' in style:
-                more_btn.find_element('button').click()
+                more_btn.find_element_by_css_selector('button').click()
 
             altittude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
             calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody.show-more-block-js.hidden > tr > td').text
@@ -170,7 +190,7 @@ class Scraper:
             avg_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(2)').text
             max_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(3)').text
 
-            activity = Riding(sport, date, location, title, description, distance, moving_time, altittude, calory, total_time, power, energy, avg_speed, max_speed)
+            activity = Riding(sport, date, location, title, description, delivery_count, distance, moving_time, altittude, calory, total_time, power, energy, avg_speed, max_speed)
 
         elif '걷기' in sport:
             # 걷기인 경우
@@ -180,13 +200,13 @@ class Scraper:
 
             pace = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul > li:nth-child(3) > strong').text
 
-            activity = Walking(sport, date, location, title, description, distance, moving_time, altittude, calory, total_time, pace)
+            activity = Walking(sport, date, location, title, description, delivery_count, distance, moving_time, altittude, calory, total_time, pace)
             # print(activity)
             # input()
 
         return activity
 
-    def scraping_activities(self):
+    def scraping_all_activities(self):
         """내 활동들 모두 스크래핑 하기"""
 
         # 로그인 상태 기다리기
@@ -242,10 +262,41 @@ class Scraper:
             else:
                 break
 
+        # 웹드라이버 종료
+        self.driver.quit()  # 모든 webdriver 종료 close는 현재 활성화된거만 종료
+
+    def save_activity(self):
+        """활동들 json 파일로 저장하기"""
+
+        activities_json = {'activity' : []}
+
+        for activity in self.activities:
+            activities_json['activity'].append(activity.dict())
+
+        with open('activities.json', 'w') as json_file:
+            json.dump(activities_json, json_file, ensure_ascii=False, indent='\t')
+
+    def load_activitiy(self):
+        """활동들 json 파일로 읽어오기"""
+        self.activities.clear()  # activities 비우기
+
+        with open('activities.json', 'r') as json_file:
+            activities_json = json.load(json_file)
+
+        for activity in activities_json['activity']:
+            print(activity)
+
 
 if __name__ == '__main__':
     scraper = Scraper()
 
     # 로그인이 성공하면 진행
     if scraper.google_login():
-        scraper.scraping_activities()
+        scraper.scraping_all_activities()
+
+    # 파일로 저장하기
+    if len(scraper.activities) > 0:
+        scraper.save_activity()
+        # 파일로 읽어오기
+        scraper.load_activitiy()
+
