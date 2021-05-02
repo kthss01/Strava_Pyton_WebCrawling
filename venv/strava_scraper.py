@@ -13,7 +13,9 @@ from selenium.webdriver.support.ui import  WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import pickle
-
+import requests
+from io import BytesIO
+from PIL import Image
 
 class Activity:
     """Activity 클래스 (활동 클래스)"""
@@ -206,6 +208,17 @@ class Scraper:
 
         return activity
 
+    def download_user_img(self):
+        sleep(0.5)
+        # 이렇게하면 medium.jpg 이미지 가져옴
+        img_url = self.driver.find_element_by_css_selector('#container-nav > ul.user-nav.nav-group > li.nav-item.drop-down-menu.user-menu.enabled > a > div > img').get_attribute('src')
+        img_url = img_url[:img_url.rfind('/')] + 'large.jpg' # large 이미지로 변경
+
+        # 이미지 요청 및 다운로드
+        res = requests.get(img_url)
+        img = Image.open(BytesIO(res.content))
+        img.save("./Resources/user.jpg", "JPEG")
+
     def scraping_all_activities(self):
         """내 활동들 모두 스크래핑 하기"""
 
@@ -213,6 +226,9 @@ class Scraper:
         element = WebDriverWait(self.driver, 30).until(
             EC.url_to_be('https://www.strava.com/dashboard#')
         )
+
+        # 유저 이미지 다운 받기
+        self.download_user_img()
 
         # 내 활동으로 이동
         self.driver.get('https://www.strava.com/athlete/training')
@@ -284,19 +300,24 @@ class Scraper:
             activities_json = json.load(json_file)
 
         for activity in activities_json['activity']:
-            print(activity)
-
+            # print(activity)
+            self.activities.append(activity)
 
 if __name__ == '__main__':
     scraper = Scraper()
 
     # 로그인이 성공하면 진행
-    if scraper.google_login():
-        scraper.scraping_all_activities()
+    # if scraper.google_login():
+    #     scraper.scraping_all_activities()
 
     # 파일로 저장하기
-    if len(scraper.activities) > 0:
-        scraper.save_activity()
-        # 파일로 읽어오기
-        scraper.load_activitiy()
+    # if len(scraper.activities) > 0:
+    #     scraper.save_activity()
+
+    # 파일로 읽어오기
+    scraper.load_activitiy()
+
+
+
+
 
