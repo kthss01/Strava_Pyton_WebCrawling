@@ -16,6 +16,9 @@ import pickle
 import requests
 from io import BytesIO
 from PIL import Image
+import time
+import datetime
+
 
 class Activity:
     """Activity 클래스 (활동 클래스)"""
@@ -44,7 +47,38 @@ class Activity:
     def dict(self):
         return {"sport" : self.sport, "date" : self.date, "location" : self.location, "title" : self.title,
                 "description" : self.description, "delivery_count" : self.delivery_count, "distance" : self.distance,
-                "moving_time" : self.moving_time, "altitude" : self.altitude, "calory" : self.calory, "total_time" : self.total_time}
+                "moving_time" : self.moving_time, "altitude" : self.altitude, "calory" : self.calory, "total_time" : self.total_time,
+                "datetime_format" : self.datetime_format, "time_datetime_format_str" : self.time_datetime_format_str}
+
+    def time_format(self):
+        """
+            date 데이터(문자열)를 원하는 문자열 형태로 만들기
+        """
+
+        # date 데이터(문자열) -> datetime 형태로 변경
+
+        token = self.date.split(' ')
+
+        year = token[0][:-1]
+        month = token[1][:-1]
+        week = token[2][-4:-3]
+        day = token[2][:-6]
+        am_pm = token[3]
+        hour, minute = token[4].split(':')
+        if am_pm == '오후' and int(hour) != 12:
+            hour = str(int(hour) + 12)
+
+        dt = datetime.datetime(
+            year=int(year), month=int(month), day=int(day),
+            hour=int(hour), minute=int(minute))
+
+        self.datetime_format = dt
+
+        w = '월화수목금토일'
+        self.time_datetime_format_str = \
+            dt.strftime('%y.%m.%d') \
+            + f'({w[dt.weekday()]}) {dt.hour}:{dt.minute}'
+
 
 class Riding(Activity):
     """Riding Activity 클래스 (활동 클래스 중 라이딩 클래스)"""
@@ -70,6 +104,7 @@ class Riding(Activity):
         dictionary = {"power" : self.power, "energy" : self.energy, "avg_speed" : self.avg_speed, "max_speed" : self.max_speed}
         return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
 
+
 class Walking(Activity):
     """Walking Activity 클래스 (활동 클래스 중 걷기 클래스)"""
 
@@ -88,6 +123,7 @@ class Walking(Activity):
     def dict(self):
         dictionary = {"pace" : self.pace}
         return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
+
 
 class Scraper:
     """Scraping 클래스"""
@@ -108,17 +144,18 @@ class Scraper:
         # 페이지 로딩이 완료되기까지 몇 초 기다릴지 정하기
         self.driver.implicitly_wait(3)
 
-        # 크롬을 통해 스트라바 접속
-        self.driver.get(self.LOGIN_URL)
-
         self.PASSWORD = pg.password(text='ID : {} 의 비밀번호 입력'
                                     .format(self.ID), title='스트라바 스크레퍼')
 
         # Activity 모음
         self.activities = []
 
-    def google_login(self):
+    def google_login(self) -> bool:
         """구글로 로그인"""
+
+        # 크롬을 통해 스트라바 접속
+        self.driver.get(self.LOGIN_URL)
+
         self.driver.find_element_by_css_selector('#login_form > div.google > a').click()
         sleep(0.5)
 
@@ -206,13 +243,19 @@ class Scraper:
             # print(activity)
             # input()
 
+        # 내가 원하는 형태의 데이터 포맷 만들어 두기
+        activity.time_format()
+
         return activity
 
     def download_user_img(self):
         sleep(0.5)
         # 이렇게하면 medium.jpg 이미지 가져옴
         img_url = self.driver.find_element_by_css_selector('#container-nav > ul.user-nav.nav-group > li.nav-item.drop-down-menu.user-menu.enabled > a > div > img').get_attribute('src')
-        img_url = img_url[:img_url.rfind('/')] + 'large.jpg' # large 이미지로 변경
+        img_url = img_url[:img_url.rfind('/')] + '/large.jpg' # large 이미지로 변경
+
+        # print(img_url)
+        # input()
 
         # 이미지 요청 및 다운로드
         res = requests.get(img_url)
@@ -236,7 +279,7 @@ class Scraper:
 
         # 비공개 체크
         self.driver.find_element_by_css_selector('#search-filters > label:nth-child(2)').click()
-        sleep(2)
+        sleep(3)
 
         while True:
             # 내 활동들 모두 접근해서 정보 가져오기
@@ -296,12 +339,73 @@ class Scraper:
         """활동들 json 파일로 읽어오기"""
         self.activities.clear()  # activities 비우기
 
-        with open('activities.json', 'r') as json_file:
+        with open('./Resources/activities.json', 'r') as json_file:
             activities_json = json.load(json_file)
 
         for activity in activities_json['activity']:
             # print(activity)
             self.activities.append(activity)
+
+    def time_to_second(self, time_format) -> int:
+        """time 포맷을 second로 변경"""
+
+        hour, minute, second = time_format.split(':')
+
+        return int(hour) * 3600 + int(minute) * 60 + int(second)
+
+    def second_to_time(self, second) -> str:
+        """sconde를 time 포맷으로 변경"""
+
+        hour = second // 3600
+        minute = (sconde % 3600) // 60
+        second = seconde % 60
+
+        return '{}:{}:{}'.format(hour, minute, second)
+
+    def total_activity(self):
+        """활동들의 누적 데이터 값 반환하기"""
+
+        last_date = self.activities[0].time_datetime_format()
+        first_date = self.activities[-1].time_datetime_format()
+
+        sum_distance = 0
+        sum_altitude = 0
+        sum_delivery_count = 0
+
+        # 시간은 모두 초로 변경 후 계산 후 다시 시,분,초로 변경
+        sum_total_time = 0
+        sum_moving_time = 0
+
+        activity_count = len(self.activities)
+        activity_ride_count = 0
+        activity_walk_count = 0
+
+        for activity in self.activities:
+            if activity.sport == '라이딩':
+                activity_ride_count += 1
+            else:
+                activity_walk_count += 1
+
+            sum_distance += float(activity.distance[:-2])
+            sum_altitude += int(activity.altitude[:-1])
+            sum_delivery_count += int(activity.delivery_count)
+
+            sum_total_time += self.time_to_second(activity.total_time)
+            sum_moving_time += self.time_to_second(activity.moving_time)
+
+        sum_total_time_str = self.second_to_time(sum_total_time)
+        sum_moving_time_str = self.second_to_time(sum_moving_time)
+
+        print('활동 기간 : {} ~ {}'.format(first_date, last_date))
+        print('누적 전체 시간 : {}'.format(sum_total_time_str))
+        print('누적 이동 시간 : {}'.format(sum_moving_time_str))
+        print('누적 이동 거리 : {}km'.format(sum_distance))
+        print('누적 고도 : {}m'.format(sum_altitude))
+        print('총 배달 건수 : {}건'.format(sum_delivery_count))
+        print('총 배민 활동 횟수 : {}건'.format(activity_count))
+        print('총 배민 활동 도보 횟수 : {}건'.format(activity_walk_count))
+        print('총 배민 활동 자전거 횟수 : {}건'.format(activity_ride_count))
+
 
 if __name__ == '__main__':
     scraper = Scraper()
@@ -316,6 +420,11 @@ if __name__ == '__main__':
 
     # 파일로 읽어오기
     scraper.load_activitiy()
+
+    # 누적 데이터 확인
+    # scraper.total_activity()
+
+    
 
 
 

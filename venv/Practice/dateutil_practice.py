@@ -4,6 +4,7 @@
 
 from dateutil.parser import parse
 import datetime
+import time
 
 date_str = "2021년 4월 16일(금요일) 오후 10:58"
 # print(parse(date_str))  # 한글이라 안됨
@@ -30,4 +31,19 @@ dt = datetime.datetime(
         year=int(year), month=int(month), day=int(day),
         hour=int(hour), minute=int(minute))
 
-print(dt.isoformat())
+# print(dt.isoformat())
+
+w = '월화수목금토일'
+
+print(dt.strftime('%y.%m.%d') + f'({w[dt.weekday()]}) {dt.hour}:{dt.minute}')
+
+# time_str = "3:55:33"
+# time_str2 = "5:23:33"
+# # print(parse(time_str))
+# # print(type(parse(time_str)))
+# dt1 = parse(time_str)
+# dt2 = parse(time_str2)
+#
+# print(dt2 - dt1)
+# print(dt2 + datetime.timedelta(hours=dt1.hour, minutes=dt1.minute, seconds=dt1.second))
+
