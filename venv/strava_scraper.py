@@ -426,16 +426,27 @@ class Scraper:
         sum_total_time_str = self.second_to_time(sum_total_time)
         sum_moving_time_str = self.second_to_time(sum_moving_time)
 
-        print('활동 기간 : {} ~ {}'.format(first_date, last_date))
-        print('누적 전체 시간 : {}'.format(sum_total_time_str))
-        print('누적 이동 시간 : {}'.format(sum_moving_time_str))
-        print('누적 이동 거리 : {:.2f}km'.format(sum_distance))
-        print('누적 고도 : {}m'.format(sum_altitude))
-        print('총 배달 건수 : {}건'.format(sum_delivery_count))
-        print('총 배민 활동 횟수 : {}건'.format(activity_count))
-        print('총 배민 활동 도보 횟수 : {}건'.format(activity_walk_count))
-        print('총 배민 활동 자전거 횟수 : {}건'.format(activity_ride_count))
+        # print('활동 기간 : {} ~ {}'.format(first_date, last_date))
+        # print('누적 전체 시간 : {}'.format(sum_total_time_str))
+        # print('누적 이동 시간 : {}'.format(sum_moving_time_str))
+        # print('누적 이동 거리 : {:.2f}km'.format(sum_distance))
+        # print('누적 고도 : {}m'.format(sum_altitude))
+        # print('총 배달 건수 : {}건'.format(sum_delivery_count))
+        # print('총 배민 활동 횟수 : {}건'.format(activity_count))
+        # print('총 배민 활동 도보 횟수 : {}건'.format(activity_walk_count))
+        # print('총 배민 활동 자전거 횟수 : {}건'.format(activity_ride_count))
 
+        return {
+            "total_date" : '활동 기간 \n{} ~ {}'.format(first_date, last_date),
+            "sum_total_time" : '누적 전체 시간\n {}'.format(sum_total_time_str),
+            "sum_moving_time" : '누적 이동 시간\n {}'.format(sum_moving_time_str),
+            "sum_distance" : '누적 이동 거리\n {:.2f}km'.format(sum_distance),
+            "sum_altitude" : '누적 고도\n {}m'.format(sum_altitude),
+            "sum_delivery_count" : '총 배달 건수\n {}건'.format(sum_delivery_count),
+            "activity_count" : '총 배민 활동 횟수\n {}건'.format(activity_count),
+            "activity_walk_count" : '총 배민 활동 도보 횟수\n {}건'.format(activity_walk_count),
+            "activity_ride_count" : '총 배민 활동 자전거 횟수\n {}건'.format(activity_ride_count),
+        }
 
 if __name__ == '__main__':
     scraper = Scraper()
