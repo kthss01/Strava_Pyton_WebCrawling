@@ -45,10 +45,11 @@ class Activity:
                f"칼로리: {self.calory}, 경과 시간: {self.total_time}\n"
 
     def dict(self):
-        return {"sport" : self.sport, "date" : self.date, "location" : self.location, "title" : self.title,
+        return {
+                "sport" : self.sport, "date" : self.date, "location" : self.location, "title" : self.title,
                 "description" : self.description, "delivery_count" : self.delivery_count, "distance" : self.distance,
                 "moving_time" : self.moving_time, "altitude" : self.altitude, "calory" : self.calory, "total_time" : self.total_time,
-                "datetime_format" : self.datetime_format, "time_datetime_format_str" : self.time_datetime_format_str}
+                }
 
     def time_format(self):
         """
@@ -77,7 +78,7 @@ class Activity:
         w = '월화수목금토일'
         self.time_datetime_format_str = \
             dt.strftime('%y.%m.%d') \
-            + f'({w[dt.weekday()]}) {dt.hour}:{dt.minute}'
+            + f'({w[dt.weekday()]}) {dt.hour:02}:{dt.minute:02}'
 
 
 class Riding(Activity):
@@ -218,7 +219,7 @@ class Scraper:
             if style == '' or 'block' in style:
                 more_btn.find_element_by_css_selector('button').click()
 
-            altittude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
+            altitude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
             calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody.show-more-block-js.hidden > tr > td').text
             # print("calory: {}".format(calory))
             # input()
@@ -229,17 +230,17 @@ class Scraper:
             avg_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(2)').text
             max_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(3)').text
 
-            activity = Riding(sport, date, location, title, description, delivery_count, distance, moving_time, altittude, calory, total_time, power, energy, avg_speed, max_speed)
+            activity = Riding(sport, date, location, title, description, delivery_count, distance, moving_time, altitude, calory, total_time, power, energy, avg_speed, max_speed)
 
         elif '걷기' in sport:
             # 걷기인 경우
-            altittude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(2) > strong').text
+            altitude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(2) > strong').text
             calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(4) > strong').text
             total_time = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(2) > div.spans3 > strong').text
 
             pace = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul > li:nth-child(3) > strong').text
 
-            activity = Walking(sport, date, location, title, description, delivery_count, distance, moving_time, altittude, calory, total_time, pace)
+            activity = Walking(sport, date, location, title, description, delivery_count, distance, moving_time, altitude, calory, total_time, pace)
             # print(activity)
             # input()
 
@@ -332,7 +333,7 @@ class Scraper:
         for activity in self.activities:
             activities_json['activity'].append(activity.dict())
 
-        with open('activities.json', 'w') as json_file:
+        with open('./Resources/activities.json', 'w') as json_file:
             json.dump(activities_json, json_file, ensure_ascii=False, indent='\t')
 
     def load_activitiy(self):
@@ -342,14 +343,43 @@ class Scraper:
         with open('./Resources/activities.json', 'r') as json_file:
             activities_json = json.load(json_file)
 
-        for activity in activities_json['activity']:
+        for activity_dict in activities_json['activity']:
             # print(activity)
+
+            if activity_dict['sport'] == '라이딩':
+                activity = Riding(activity_dict['sport'], activity_dict['date'],
+                                  activity_dict['location'], activity_dict['title'],
+                                  activity_dict['description'], activity_dict['delivery_count'],
+                                  activity_dict['distance'], activity_dict['moving_time'],
+                                  activity_dict['altitude'], activity_dict['calory'],
+                                  activity_dict['total_time'], activity_dict['power'],
+                                  activity_dict['energy'], activity_dict['avg_speed'], activity_dict['max_speed'])
+            elif activity_dict['sport'] == '걷기':
+                activity = Walking(activity_dict['sport'], activity_dict['date'],
+                                  activity_dict['location'], activity_dict['title'],
+                                  activity_dict['description'], activity_dict['delivery_count'],
+                                  activity_dict['distance'], activity_dict['moving_time'],
+                                  activity_dict['altitude'], activity_dict['calory'],
+                                  activity_dict['total_time'], activity_dict['pace'])
+
+            activity.time_format()
+
             self.activities.append(activity)
 
     def time_to_second(self, time_format) -> int:
         """time 포맷을 second로 변경"""
 
-        hour, minute, second = time_format.split(':')
+        # print(time_format)
+
+        time_tokens = time_format.split(':')
+        if len(time_tokens) == 2:
+            hour = 0
+            minute = time_tokens[0]
+            second = time_tokens[1]
+        else:
+            hour = time_tokens[0]
+            minute = time_tokens[1]
+            second = time_tokens[2]
 
         return int(hour) * 3600 + int(minute) * 60 + int(second)
 
@@ -357,16 +387,16 @@ class Scraper:
         """sconde를 time 포맷으로 변경"""
 
         hour = second // 3600
-        minute = (sconde % 3600) // 60
-        second = seconde % 60
+        minute = (second % 3600) // 60
+        second = second % 60
 
-        return '{}:{}:{}'.format(hour, minute, second)
+        return '{}:{:02}:{:02}'.format(hour, minute, second)
 
     def total_activity(self):
         """활동들의 누적 데이터 값 반환하기"""
 
-        last_date = self.activities[0].time_datetime_format()
-        first_date = self.activities[-1].time_datetime_format()
+        last_date = self.activities[0].time_datetime_format_str
+        first_date = self.activities[-1].time_datetime_format_str
 
         sum_distance = 0
         sum_altitude = 0
@@ -399,7 +429,7 @@ class Scraper:
         print('활동 기간 : {} ~ {}'.format(first_date, last_date))
         print('누적 전체 시간 : {}'.format(sum_total_time_str))
         print('누적 이동 시간 : {}'.format(sum_moving_time_str))
-        print('누적 이동 거리 : {}km'.format(sum_distance))
+        print('누적 이동 거리 : {:.2f}km'.format(sum_distance))
         print('누적 고도 : {}m'.format(sum_altitude))
         print('총 배달 건수 : {}건'.format(sum_delivery_count))
         print('총 배민 활동 횟수 : {}건'.format(activity_count))
@@ -411,15 +441,16 @@ if __name__ == '__main__':
     scraper = Scraper()
 
     # 로그인이 성공하면 진행
-    # if scraper.google_login():
-    #     scraper.scraping_all_activities()
+    if scraper.google_login():
+        scraper.scraping_all_activities()
 
     # 파일로 저장하기
-    # if len(scraper.activities) > 0:
-    #     scraper.save_activity()
+    if len(scraper.activities) > 0:
+        scraper.save_activity()
 
     # 파일로 읽어오기
-    scraper.load_activitiy()
+    # scraper.driver.quit()
+    # scraper.load_activitiy()
 
     # 누적 데이터 확인
     # scraper.total_activity()
