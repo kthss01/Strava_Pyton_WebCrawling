@@ -9,7 +9,7 @@ from selenium import webdriver
 from time import sleep
 import pyautogui as pg
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import  WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import pickle
@@ -18,6 +18,10 @@ from io import BytesIO
 from PIL import Image
 import time
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import matplotlib.dates as mdates
+from matplotlib.dates import DateFormatter
 
 
 class Activity:
@@ -46,10 +50,11 @@ class Activity:
 
     def dict(self):
         return {
-                "sport" : self.sport, "date" : self.date, "location" : self.location, "title" : self.title,
-                "description" : self.description, "delivery_count" : self.delivery_count, "distance" : self.distance,
-                "moving_time" : self.moving_time, "altitude" : self.altitude, "calory" : self.calory, "total_time" : self.total_time,
-                }
+            "sport": self.sport, "date": self.date, "location": self.location, "title": self.title,
+            "description": self.description, "delivery_count": self.delivery_count, "distance": self.distance,
+            "moving_time": self.moving_time, "altitude": self.altitude, "calory": self.calory,
+            "total_time": self.total_time,
+        }
 
     def time_format(self):
         """
@@ -87,9 +92,8 @@ class Riding(Activity):
     def __init__(self, sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time,
                  power, energy, avg_speed, max_speed):
-
         super().__init__(sport, date, location, title, description, delivery_count, distance,
-                 moving_time, altitude, calory, total_time)
+                         moving_time, altitude, calory, total_time)
 
         self.power = power
         self.energy = energy
@@ -102,7 +106,8 @@ class Riding(Activity):
                f"평균 속도: {self.avg_speed}, 최대 속도: {self.max_speed}"
 
     def dict(self):
-        dictionary = {"power" : self.power, "energy" : self.energy, "avg_speed" : self.avg_speed, "max_speed" : self.max_speed}
+        dictionary = {"power": self.power, "energy": self.energy, "avg_speed": self.avg_speed,
+                      "max_speed": self.max_speed}
         return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
 
 
@@ -112,9 +117,8 @@ class Walking(Activity):
     def __init__(self, sport, date, location, title, description, delivery_count, distance,
                  moving_time, altitude, calory, total_time,
                  pace):
-
         super().__init__(sport, date, location, title, description, delivery_count, distance,
-                 moving_time, altitude, calory, total_time)
+                         moving_time, altitude, calory, total_time)
 
         self.pace = pace
 
@@ -122,7 +126,7 @@ class Walking(Activity):
         return super().__str__() + f"페이스: {self.pace}"
 
     def dict(self):
-        dictionary = {"pace" : self.pace}
+        dictionary = {"pace": self.pace}
         return {**super().dict(), **dictionary}  # 부모 dict과 합쳐서 반환
 
 
@@ -134,7 +138,7 @@ class Scraper:
     LOGIN_URL = 'http://www.strava.com/login'
     ID = 'kthtim0704@gmail.com'
     PASSWORD = ''
-    
+
     def __init__(self):
         # 크롬 웹드라이버 설정
         self.driver = webdriver.Chrome(self.PATH)
@@ -166,9 +170,10 @@ class Scraper:
         # 다음 버튼 클릭
         self.driver.find_element_by_css_selector('#identifierNext > div > button > div.VfPpkd-RLmnJb').click()
         sleep(0.5)
-        
+
         # 비밀번호 입력
-        self.driver.find_element_by_css_selector('#password > div.aCsJod.oJeWuf > div > div.Xb9hP > input').send_keys(self.PASSWORD)
+        self.driver.find_element_by_css_selector('#password > div.aCsJod.oJeWuf > div > div.Xb9hP > input').send_keys(
+            self.PASSWORD)
 
         # 다음 버튼 클릭
         self.driver.find_element_by_css_selector('#passwordNext > div > button > div.VfPpkd-RLmnJb').click()
@@ -197,10 +202,14 @@ class Scraper:
         elif '걷기' in sport:
             sport = '걷기'
 
-        date = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > time').text
-        location = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > span').text
-        title = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > h1').text
-        description_str = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > div.activity-description-container > div > div > p').text
+        date = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > time').text
+        location = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > span').text
+        title = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > h1').text
+        description_str = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-summary.mt-md.mb-md > div > div > div.activity-description-container > div > div > p').text
         descriptions = description_str.split('\n')
         delivery_count = descriptions[0]  # 내용에서 배달 건수 분리
         description = ""
@@ -208,39 +217,55 @@ class Scraper:
         if len(descriptions) > 1:
             description = descriptions[1]
 
-        distance = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(1) > strong').text
-        moving_time = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(2) > strong').text
+        distance = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(1) > strong').text
+        moving_time = self.driver.find_element_by_css_selector(
+            '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(2) > strong').text
 
         if '라이딩' in sport:
             # 더보기 버튼 클릭
-            more_btn = self.driver.find_element_by_css_selector('#heading > div > div.row.no-margins.activity-summary-container > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1)')
+            more_btn = self.driver.find_element_by_css_selector(
+                '#heading > div > div.row.no-margins.activity-summary-container > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1)')
             # 더보기 div가 block 디스플레이라 클릭을 해야하는 경우 클릭
             style = more_btn.get_attribute('style')
             if style == '' or 'block' in style:
                 more_btn.find_element_by_css_selector('button').click()
 
-            altitude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
-            calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody.show-more-block-js.hidden > tr > td').text
+            altitude = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul:nth-child(1) > li:nth-child(3) > strong').text
+            calory = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody.show-more-block-js.hidden > tr > td').text
             # print("calory: {}".format(calory))
             # input()
-            total_time = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(4) > tr > td').text
+            total_time = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(4) > tr > td').text
 
-            power = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul.inline-stats.section.secondary-stats > li:nth-child(1) > strong').text
-            energy = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul.inline-stats.section.secondary-stats > li:nth-child(2) > strong').text
-            avg_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(2)').text
-            max_speed = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(3)').text
+            power = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul.inline-stats.section.secondary-stats > li:nth-child(1) > strong').text
+            energy = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul.inline-stats.section.secondary-stats > li:nth-child(2) > strong').text
+            avg_speed = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(2)').text
+            max_speed = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > table > tbody:nth-child(2) > tr > td:nth-child(3)').text
 
-            activity = Riding(sport, date, location, title, description, delivery_count, distance, moving_time, altitude, calory, total_time, power, energy, avg_speed, max_speed)
+            activity = Riding(sport, date, location, title, description, delivery_count, distance, moving_time,
+                              altitude, calory, total_time, power, energy, avg_speed, max_speed)
 
         elif '걷기' in sport:
             # 걷기인 경우
-            altitude = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(2) > strong').text
-            calory = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(4) > strong').text
-            total_time = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(2) > div.spans3 > strong').text
+            altitude = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(2) > strong').text
+            calory = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(1) > div:nth-child(4) > strong').text
+            total_time = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > div.section.more-stats > div:nth-child(2) > div.spans3 > strong').text
 
-            pace = self.driver.find_element_by_css_selector('#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul > li:nth-child(3) > strong').text
+            pace = self.driver.find_element_by_css_selector(
+                '#heading > div > div > div.spans8.activity-stats.mt-md.mb-md > ul > li:nth-child(3) > strong').text
 
-            activity = Walking(sport, date, location, title, description, delivery_count, distance, moving_time, altitude, calory, total_time, pace)
+            activity = Walking(sport, date, location, title, description, delivery_count, distance, moving_time,
+                               altitude, calory, total_time, pace)
             # print(activity)
             # input()
 
@@ -252,8 +277,10 @@ class Scraper:
     def download_user_img(self):
         sleep(0.5)
         # 이렇게하면 medium.jpg 이미지 가져옴
-        img_url = self.driver.find_element_by_css_selector('#container-nav > ul.user-nav.nav-group > li.nav-item.drop-down-menu.user-menu.enabled > a > div > img').get_attribute('src')
-        img_url = img_url[:img_url.rfind('/')] + '/large.jpg' # large 이미지로 변경
+        img_url = self.driver.find_element_by_css_selector(
+            '#container-nav > ul.user-nav.nav-group > li.nav-item.drop-down-menu.user-menu.enabled > a > div > img').get_attribute(
+            'src')
+        img_url = img_url[:img_url.rfind('/')] + '/large.jpg'  # large 이미지로 변경
 
         # print(img_url)
         # input()
@@ -328,7 +355,7 @@ class Scraper:
     def save_activity(self):
         """활동들 json 파일로 저장하기"""
 
-        activities_json = {'activity' : []}
+        activities_json = {'activity': []}
 
         for activity in self.activities:
             activities_json['activity'].append(activity.dict())
@@ -356,11 +383,11 @@ class Scraper:
                                   activity_dict['energy'], activity_dict['avg_speed'], activity_dict['max_speed'])
             elif activity_dict['sport'] == '걷기':
                 activity = Walking(activity_dict['sport'], activity_dict['date'],
-                                  activity_dict['location'], activity_dict['title'],
-                                  activity_dict['description'], activity_dict['delivery_count'],
-                                  activity_dict['distance'], activity_dict['moving_time'],
-                                  activity_dict['altitude'], activity_dict['calory'],
-                                  activity_dict['total_time'], activity_dict['pace'])
+                                   activity_dict['location'], activity_dict['title'],
+                                   activity_dict['description'], activity_dict['delivery_count'],
+                                   activity_dict['distance'], activity_dict['moving_time'],
+                                   activity_dict['altitude'], activity_dict['calory'],
+                                   activity_dict['total_time'], activity_dict['pace'])
 
             activity.time_format()
 
@@ -437,38 +464,163 @@ class Scraper:
         # print('총 배민 활동 자전거 횟수 : {}건'.format(activity_ride_count))
 
         return {
-            "total_date" : '활동 기간 \n{} ~ {}'.format(first_date, last_date),
-            "sum_total_time" : '누적 전체 시간\n {}'.format(sum_total_time_str),
-            "sum_moving_time" : '누적 이동 시간\n {}'.format(sum_moving_time_str),
-            "sum_distance" : '누적 이동 거리\n {:.2f}km'.format(sum_distance),
-            "sum_altitude" : '누적 고도\n {}m'.format(sum_altitude),
-            "sum_delivery_count" : '총 배달 건수\n {}건'.format(sum_delivery_count),
-            "activity_count" : '총 배민 활동 횟수\n {}건'.format(activity_count),
-            "activity_walk_count" : '총 배민 활동 도보 횟수\n {}건'.format(activity_walk_count),
-            "activity_ride_count" : '총 배민 활동 자전거 횟수\n {}건'.format(activity_ride_count),
+            "total_date": '활동 기간 \n{} ~ {}'.format(first_date, last_date),
+            "sum_total_time": '누적 전체 시간\n {}'.format(sum_total_time_str),
+            "sum_moving_time": '누적 이동 시간\n {}'.format(sum_moving_time_str),
+            "sum_distance": '누적 이동 거리\n {:.2f}km'.format(sum_distance),
+            "sum_altitude": '누적 고도\n {}m'.format(sum_altitude),
+            "sum_delivery_count": '총 배달 건수\n {}건'.format(sum_delivery_count),
+            "activity_count": '총 배민 활동 횟수\n {}건'.format(activity_count),
+            "activity_walk_count": '총 배민 활동 도보 횟수\n {}건'.format(activity_walk_count),
+            "activity_ride_count": '총 배민 활동 자전거 횟수\n {}건'.format(activity_ride_count),
         }
+
+    def make_graph(self, date_list, delivery_list, file_name):
+        """일별 배달건수 그래프를 만들어 저장하기"""
+
+        # matplotlib 이용해서 데이터 시각화 하기
+        plt.figure(figsize=(13, 8))
+
+        # 한글 폰트 설정
+        font_path = './BMJUA_ttf.ttf'  # 폰트 경로
+        # font_path = 'C:/Users/Kay/PycharmProjects/Strava_Pyton_WebCrawling/venv/BMJUA_ttf.ttf'
+        font_prop = fm.FontProperties(fname=font_path)  # FontProperties 인스턴스 생성
+        font_name = font_prop.get_name()  # 폰트 이름
+        plt.rc('font', family=font_name)  # 폰트 일괄 설정
+
+        if 'total' in file_name:
+            plt.title('전체 배달 건수 통계')
+        else:
+            plt.title(f'{date_list[0].year}년 {date_list[0].month}월 배달 건수 통계')
+        plt.xlabel('날짜')
+        plt.ylabel('배달 건수')
+
+        plt.grid()
+
+        # plt.scatter(date_list, delivery_list)
+        # plt.plot(date_list, delivery_list, marker='o')
+        # plt.bar(date_list, delivery_list)
+
+        plt.plot_date(date_list, delivery_list)
+
+        axes = plt.gca()
+        formatter = DateFormatter('%y.%m.%d')
+        axes.xaxis.set_major_formatter(formatter)
+        plt.xticks(rotation=25)
+
+        if 'total' not in file_name:
+            plt.xticks(rotation=90)
+            axes.xaxis.set_major_locator(mdates.DayLocator())
+
+        # 주석 표시
+        # 전체 통계의 경우 시작 배달일 추가
+        if 'total' in file_name:
+            start_ann = plt.annotate(f'시작일 [{date_list[0].strftime("%y.%m.%d")} : {delivery_list[0]}건]',
+                                     xy=(mdates.date2num(date_list[0]), delivery_list[0]), xytext=(-100, 15),
+                                     textcoords='offset points', arrowprops=dict(arrowstyle='-|>'),
+                                     bbox=dict(boxstyle='round', facecolor='violet', alpha=0.5))
+
+        # print(delivery_list)
+        max_delivery_count = max(delivery_list)
+        # print(max_delivery_count)
+        max_delivery_date = date_list[delivery_list.index(max_delivery_count)]
+
+        max_delivery_ann = plt.annotate(f'최대 배달일 [{max_delivery_date.strftime("%y.%m.%d")} : {max_delivery_count}건]',
+                                        xy=(mdates.date2num(max_delivery_date), max_delivery_count), xytext=(10, 10),
+                                        textcoords='offset points', arrowprops=dict(arrowstyle='-|>'),
+                                        bbox=dict(boxstyle='round', facecolor='dodgerblue', alpha=0.5))
+
+        avg_delivery_count = sum(delivery_list) // len(delivery_list)
+        # print(avg_delivery_count)
+
+        avg_delivery_text = plt.text(0.85, 1.05, f'평균 배달 건수 : {avg_delivery_count}건', fontsize=12,
+                                    transform=axes.transAxes, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+        plt.savefig('./Resources/Graphs/' + file_name)
+        # plt.show()
+
+        # start_ann.remove()
+        # max_delivery_ann.remove()
+
+    def divide_date(self, date_list, delivery_list):
+        """전체 데이터 월별로 나누기"""
+        start_year, start_month = date_list[0].year, date_list[0].month
+        end_year, end_month = date_list[-1].year, date_list[-1].month
+
+        period = []
+        year, month = start_year, start_month
+        while True:
+            period.append((year, month))
+
+            if year == end_year and month == end_month:
+                break
+
+            month += 1
+            if month == 13:
+                month = 1
+                year += 1
+
+        # print(period)
+
+        result = []
+
+        for year, month in period:
+            res_list = list(filter(lambda x: date_list[x].year == year and date_list[x].month == month, range(len(date_list))))
+            # print(res_list)
+
+            divide_date_list = []
+            divide_delivery_list = []
+
+            for res in res_list:
+                # print(f'{date_list[res]} : {delivery_list[res]}')
+                divide_date_list.append(date_list[res])
+                divide_delivery_list.append(delivery_list[res])
+
+            result.append((divide_date_list, divide_delivery_list, f'{year}_{month}_graph.png'))
+
+        return result
+
+    def make_delivery_statistics(self):
+        """일별 배달건수 통계 만들기"""
+
+        date_list = []
+        delivery_list = []
+
+        for activity in reversed(self.activities):
+            # print(f'{activity.datetime_format} : {activity.delivery_count}')
+
+            date_list.append(activity.datetime_format)
+            # date_list.append(activity.datetime_format)
+            delivery_list.append(int(activity.delivery_count))
+
+        self.make_graph(date_list, delivery_list, "total_graph.png")  # 전체 통계 먼저 처리
+
+        divide_date_list = self.divide_date(date_list, delivery_list)
+
+        # print(divide_date_list)
+        # input()
+
+        for monthly_date, monthly_delivery, file_name in divide_date_list:
+            self.make_graph(monthly_date, monthly_delivery, file_name)
+
 
 if __name__ == '__main__':
     scraper = Scraper()
 
     # 로그인이 성공하면 진행
-    if scraper.google_login():
-        scraper.scraping_all_activities()
+    # if scraper.google_login():
+    #     scraper.scraping_all_activities()
 
     # 파일로 저장하기
-    if len(scraper.activities) > 0:
-        scraper.save_activity()
+    # if len(scraper.activities) > 0:
+    #     scraper.save_activity()
 
     # 파일로 읽어오기
-    # scraper.driver.quit()
-    # scraper.load_activitiy()
+    scraper.driver.quit()
+    scraper.load_activitiy()
 
     # 누적 데이터 확인
     # scraper.total_activity()
 
-    
-
-
-
-
-
+    # 일별 배달건수 통계 만들기
+    scraper.make_delivery_statistics()

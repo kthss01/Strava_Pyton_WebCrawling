@@ -1,5 +1,5 @@
 """
-데이터 시각화하기 matplitlib
+데이터 시각화하기 matplotlib
 """
 
 import matplotlib.pyplot as plt
