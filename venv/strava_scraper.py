@@ -422,8 +422,10 @@ class Scraper:
     def total_activity(self):
         """활동들의 누적 데이터 값 반환하기"""
 
-        last_date = self.activities[0].time_datetime_format_str
-        first_date = self.activities[-1].time_datetime_format_str
+        last_date = self.activities[0].datetime_format.strftime('%y.%m.%d')
+        first_date = self.activities[-1].datetime_format.strftime('%y.%m.%d')
+
+        # print('{} ~ {}'.format(first_date, last_date))
 
         sum_distance = 0
         sum_altitude = 0
@@ -464,16 +466,28 @@ class Scraper:
         # print('총 배민 활동 자전거 횟수 : {}건'.format(activity_ride_count))
 
         return {
-            "total_date": '활동 기간 \n{} ~ {}'.format(first_date, last_date),
-            "sum_total_time": '누적 전체 시간\n {}'.format(sum_total_time_str),
-            "sum_moving_time": '누적 이동 시간\n {}'.format(sum_moving_time_str),
-            "sum_distance": '누적 이동 거리\n {:.2f}km'.format(sum_distance),
-            "sum_altitude": '누적 고도\n {}m'.format(sum_altitude),
-            "sum_delivery_count": '총 배달 건수\n {}건'.format(sum_delivery_count),
-            "activity_count": '총 배민 활동 횟수\n {}건'.format(activity_count),
-            "activity_walk_count": '총 배민 활동 도보 횟수\n {}건'.format(activity_walk_count),
-            "activity_ride_count": '총 배민 활동 자전거 횟수\n {}건'.format(activity_ride_count),
+            "total_date": '{} ~ {}'.format(first_date, last_date),
+            "sum_total_time": '{}'.format(sum_total_time_str),
+            "sum_moving_time": '{}'.format(sum_moving_time_str),
+            "sum_distance": '{:.2f}km'.format(sum_distance),
+            "sum_altitude": '{}m'.format(sum_altitude),
+            "sum_delivery_count": '{}건'.format(sum_delivery_count),
+            "activity_count": '{}건'.format(activity_count),
+            "activity_walk_count": '{}건'.format(activity_walk_count),
+            "activity_ride_count": '{}건'.format(activity_ride_count),
         }
+
+        # return {
+        #     "total_date": '활동 기간 \n{} ~ {}'.format(first_date, last_date),
+        #     "sum_total_time": '누적 전체 시간\n {}'.format(sum_total_time_str),
+        #     "sum_moving_time": '누적 이동 시간\n {}'.format(sum_moving_time_str),
+        #     "sum_distance": '누적 이동 거리\n {:.2f}km'.format(sum_distance),
+        #     "sum_altitude": '누적 고도\n {}m'.format(sum_altitude),
+        #     "sum_delivery_count": '총 배달 건수\n {}건'.format(sum_delivery_count),
+        #     "activity_count": '총 배민 활동 횟수\n {}건'.format(activity_count),
+        #     "activity_walk_count": '총 배민 활동 도보 횟수\n {}건'.format(activity_walk_count),
+        #     "activity_ride_count": '총 배민 활동 자전거 횟수\n {}건'.format(activity_ride_count),
+        # }
 
     def make_graph(self, date_list, delivery_list, file_name):
         """일별 배달건수 그래프를 만들어 저장하기"""
