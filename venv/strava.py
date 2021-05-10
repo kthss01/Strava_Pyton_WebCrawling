@@ -16,11 +16,11 @@ import strava_scraper as scraper
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def setupUi(self):
         self.setObjectName("MainWindow")
-        self.resize(1024, 775)
+        self.resize(1024, 906)
         self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(760, 690, 251, 61))
+        self.pushButton.setGeometry(QtCore.QRect(760, 820, 251, 61))
         self.pushButton.setObjectName("pushButton")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(20, 10, 711, 201))
@@ -45,14 +45,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.user_icon_label = QtWidgets.QLabel(self.groupBox)
         self.user_icon_label.setGeometry(QtCore.QRect(40, 70, 131, 121))
         self.user_icon_label.setText("")
-        self.user_icon_label.setPixmap(QtGui.QPixmap(":/icon/user.jpg"))
+        self.user_icon_label.setPixmap(QtGui.QPixmap("./Resources/strava.png"))
         self.user_icon_label.setScaledContents(True)
         self.user_icon_label.setObjectName("user_icon_label")
         self.total_date_txt = QtWidgets.QTextEdit(self.groupBox)
         self.total_date_txt.setGeometry(QtCore.QRect(20, 20, 171, 41))
         self.total_date_txt.setObjectName("total_date_txt")
         self.baemin_icon_label = QtWidgets.QLabel(self.groupBox)
-        self.baemin_icon_label.setGeometry(QtCore.QRect(510, 10, 171, 51))
+        self.baemin_icon_label.setGeometry(QtCore.QRect(510, 20, 171, 51))
         self.baemin_icon_label.setText("")
         self.baemin_icon_label.setPixmap(QtGui.QPixmap(":/icon/baemin.png"))
         self.baemin_icon_label.setScaledContents(True)
@@ -73,7 +73,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.sum_total_time_txt.setGeometry(QtCore.QRect(210, 20, 131, 41))
         self.sum_total_time_txt.setObjectName("sum_total_time_txt")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(20, 530, 711, 221))
+        self.groupBox_2.setGeometry(QtCore.QRect(20, 660, 711, 221))
         self.groupBox_2.setObjectName("groupBox_2")
         self.moving_time_txt = QtWidgets.QTextEdit(self.groupBox_2)
         self.moving_time_txt.setGeometry(QtCore.QRect(210, 100, 281, 31))
@@ -126,24 +126,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.baemin2_icon_label.setPixmap(QtGui.QPixmap(":/icon/baemin2.png"))
         self.baemin2_icon_label.setScaledContents(True)
         self.baemin2_icon_label.setObjectName("baemin2_icon_label")
+
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
-        self.listWidget.setGeometry(QtCore.QRect(760, 20, 251, 501))
+        self.listWidget.setGeometry(QtCore.QRect(760, 20, 251, 631))
         self.listWidget.setObjectName("listWidget")
+
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(20, 220, 711, 301))
+        self.tabWidget.setGeometry(QtCore.QRect(20, 220, 711, 431))
         self.tabWidget.setDocumentMode(False)
         self.tabWidget.setObjectName("tabWidget")
+
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.chart_label = QtWidgets.QLabel(self.tab)
-        self.chart_label.setGeometry(QtCore.QRect(20, 10, 651, 241))
+        self.chart_label.setGeometry(QtCore.QRect(10, 10, 681, 391))
         self.chart_label.setObjectName("chart_label")
         self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
+
         self.textEdit_16 = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit_16.setGeometry(QtCore.QRect(760, 540, 251, 141))
+        self.textEdit_16.setGeometry(QtCore.QRect(760, 670, 251, 141))
         self.textEdit_16.setObjectName("textEdit_16")
         self.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar()
@@ -154,11 +155,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.retranslateUi()
         self.tabWidget.setCurrentIndex(0)
         self.pushButton.clicked.connect(self.strava_load_button)
+        self.listWidget.itemClicked.connect(self.list_item_clicked)
         # QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.setWindowTitle(_translate("MainWindow", "스트라바 웹크롤링 for 파이썬"))
         self.pushButton.setText(_translate("MainWindow", "스트라바로부터 읽어오기"))
         self.groupBox.setTitle(_translate("MainWindow", "배민 알바 누적 활동"))
         self.sum_moving_time_txt.setHtml(_translate("MainWindow",
@@ -167,21 +169,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                                     "p, li { white-space: pre-wrap; }\n"
                                                     "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                     "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">누적 이동 시간</span></p>\n"
-                                                    "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">3:55:33</span></p></body></html>"))
+                                                    "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\"></span></p></body></html>"))
         self.sum_distance_txt.setHtml(_translate("MainWindow",
                                                  "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                  "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                  "p, li { white-space: pre-wrap; }\n"
                                                  "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                  "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">누적 이동 거리</span></p>\n"
-                                                 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">51.99km</span></p></body></html>"))
+                                                 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\"></span></p></body></html>"))
         self.sum_altitude_txt.setHtml(_translate("MainWindow",
                                                  "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                  "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                  "p, li { white-space: pre-wrap; }\n"
                                                  "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                  "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">누적 고도</span></p>\n"
-                                                 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">439m</span></p></body></html>"))
+                                                 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\"></span></p></body></html>"))
         self.sum_delivery_count_txt.setHtml(_translate("MainWindow",
                                                        "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                        "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -189,42 +191,42 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                                        "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                        "<p align=\"center\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
                                                        "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">총 배달 건수</span></p>\n"
-                                                       "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">130건</span></p></body></html>"))
+                                                       "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\"></span></p></body></html>"))
         self.total_date_txt.setHtml(_translate("MainWindow",
                                                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                "p, li { white-space: pre-wrap; }\n"
                                                "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">활동 기간</span></p>\n"
-                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">21.04.11 ~ 21.04.16</span></p></body></html>"))
+                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\"></span></p></body></html>"))
         self.total_activities_txt.setHtml(_translate("MainWindow",
                                                      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                      "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                      "p, li { white-space: pre-wrap; }\n"
                                                      "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                      "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">총 배민 활동 횟수</span></p>\n"
-                                                     "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">130건</span></p></body></html>"))
+                                                     "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\"></span></p></body></html>"))
         self.total_walk_activities_txt.setHtml(_translate("MainWindow",
                                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                           "p, li { white-space: pre-wrap; }\n"
                                                           "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                           "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">도보</span></p>\n"
-                                                          "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">7건</span></p></body></html>"))
+                                                          "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\"></span></p></body></html>"))
         self.total_bike_activities_txt.setHtml(_translate("MainWindow",
                                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                           "p, li { white-space: pre-wrap; }\n"
                                                           "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                           "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">자전거</span></p>\n"
-                                                          "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">123건</span></p></body></html>"))
+                                                          "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\"></span></p></body></html>"))
         self.sum_total_time_txt.setHtml(_translate("MainWindow",
                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                    "p, li { white-space: pre-wrap; }\n"
                                                    "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                    "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">누적 전체 시간</span></p>\n"
-                                                   "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">5:04:37</span></p></body></html>"))
+                                                   "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\"></span></p></body></html>"))
         self.groupBox_2.setTitle(_translate("MainWindow", "배민 알바 활동"))
         self.moving_time_txt.setHtml(_translate("MainWindow",
                                                 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -232,40 +234,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                                 "p, li { white-space: pre-wrap; }\n"
                                                 "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 시간</p>\n"
-                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">03:55:33</p></body></html>"))
+                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.distance_txt.setHtml(_translate("MainWindow",
                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                              "p, li { white-space: pre-wrap; }\n"
                                              "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 거리</p>\n"
-                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">51.99km</p></body></html>"))
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.altitude_txt.setHtml(_translate("MainWindow",
                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                              "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                              "p, li { white-space: pre-wrap; }\n"
                                              "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 고도</p>\n"
-                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">439m</p></body></html>"))
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.delivery_count_txt.setHtml(_translate("MainWindow",
                                                    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                    "p, li { white-space: pre-wrap; }\n"
                                                    "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                    "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">배달 건수</p>\n"
-                                                   "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">10건</p></body></html>"))
+                                                   "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.description_txt.setHtml(_translate("MainWindow",
                                                 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                 "p, li { white-space: pre-wrap; }\n"
                                                 "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">설명</p>\n"
-                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">막판에 펑크남</p></body></html>"))
+                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.detailed_plaintxt.setPlainText(_translate("MainWindow", "세부 정보\n"
                                                                      "\n"
-                                                                     "평균 파워 : 69w\n"
-                                                                     "평균 속도 : 13.2km/h\n"
-                                                                     "최대 속도 : 42.5km/h\n"
                                                                      ""))
         self.date_txt.setHtml(_translate("MainWindow",
                                          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -273,31 +272,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                          "p, li { white-space: pre-wrap; }\n"
                                          "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">날짜</p>\n"
-                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">21.04.16 (금) 22:58</p></body></html>"))
+                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.title_txt.setHtml(_translate("MainWindow",
                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                           "p, li { white-space: pre-wrap; }\n"
                                           "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">제목</span></p>\n"
-                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">배민 알바 210일차</span></p></body></html>"))
+                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\"></span></p></body></html>"))
         self.total_time_txt.setHtml(_translate("MainWindow",
                                                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                "p, li { white-space: pre-wrap; }\n"
                                                "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">전체 시간</p>\n"
-                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">05:04:37</p></body></html>"))
+                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
         self.calory_txt.setHtml(_translate("MainWindow",
                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                            "p, li { white-space: pre-wrap; }\n"
                                            "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">칼로리</p>\n"
-                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">1,084cal</p></body></html>"))
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p></body></html>"))
+
         self.chart_label.setText(_translate("MainWindow", "배민 활동 그래프"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "전체 통계"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
+
         self.textEdit_16.setHtml(_translate("MainWindow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -309,6 +309,94 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">스트라바에 로그인하여  </span></p>\n"
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">배민 활동들을 웹크롤링 해보고</span></p>\n"
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">데이터 시각화 해보기</span></p></body></html>"))
+
+    def retranslate_activity_ui(self, activity):
+
+        # icon 설정
+        if '라이딩' in activity.sport:
+            self.activity_icon_label.setPixmap(QtGui.QPixmap(":/icon/bicycle.png"))
+        else:
+            self.activity_icon_label.setPixmap(QtGui.QPixmap(":/icon/walk.png"))
+
+        _translate = QtCore.QCoreApplication.translate
+
+        self.moving_time_txt.setHtml(_translate("MainWindow",
+                                                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                "p, li { white-space: pre-wrap; }\n"
+                                                "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 시간</p>\n"
+                                                f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.moving_time}</p></body></html>"))
+        self.distance_txt.setHtml(_translate("MainWindow",
+                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                             "p, li { white-space: pre-wrap; }\n"
+                                             "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 거리</p>\n"
+                                             f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.distance}</p></body></html>"))
+        self.altitude_txt.setHtml(_translate("MainWindow",
+                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                             "p, li { white-space: pre-wrap; }\n"
+                                             "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">이동 고도</p>\n"
+                                             f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.altitude}</p></body></html>"))
+        self.delivery_count_txt.setHtml(_translate("MainWindow",
+                                                   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                   "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                   "p, li { white-space: pre-wrap; }\n"
+                                                   "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                                   "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">배달 건수</p>\n"
+                                                   f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.delivery_count}건</p></body></html>"))
+        self.description_txt.setHtml(_translate("MainWindow",
+                                                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                "p, li { white-space: pre-wrap; }\n"
+                                                "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">설명</p>\n"
+                                                f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.description}</p></body></html>"))
+
+        if '라이딩' in activity.sport:
+            self.detailed_plaintxt.setPlainText(_translate("MainWindow", "세부 정보\n"
+                                                                         "\n"
+                                                                         f"평균 파워 : {activity.power}\n"
+                                                                         f"평균 속도 : {activity.avg_speed}\n"
+                                                                         f"최대 속도 : {activity.max_speed}\n"
+                                                                         ""))
+        else:
+            self.detailed_plaintxt.setPlainText(_translate("MainWindow", "세부 정보\n"
+                                                                         "\n"
+                                                                         f"페이스 : {activity.pace}\n"
+                                                                         ""))
+
+        self.date_txt.setHtml(_translate("MainWindow",
+                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                         "p, li { white-space: pre-wrap; }\n"
+                                         "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">날짜</p>\n"
+                                         f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.date}</p></body></html>"))
+        self.title_txt.setHtml(_translate("MainWindow",
+                                          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                          "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                          "p, li { white-space: pre-wrap; }\n"
+                                          "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">제목</span></p>\n"
+                                          f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">{activity.title}</span></p></body></html>"))
+        self.total_time_txt.setHtml(_translate("MainWindow",
+                                               "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                               "p, li { white-space: pre-wrap; }\n"
+                                               "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">전체 시간</p>\n"
+                                               f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.total_time}</p></body></html>"))
+        self.calory_txt.setHtml(_translate("MainWindow",
+                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                           "p, li { white-space: pre-wrap; }\n"
+                                           "</style></head><body style=\" font-family:\'Gulim\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">칼로리</p>\n"
+                                           f"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{activity.calory}</p></body></html>"))
 
     def retranslate_total_activity_ui(self, total_activity):
         """스트라바로부터 읽어온 데이터 형식에 맞게 설정하기"""
@@ -379,6 +467,85 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                                    "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">누적 전체 시간</span></p>\n"
                                                    f"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600;\">{total_activity['sum_total_time']}</span></p></body></html>"))
 
+    def list_item_clicked(self):
+        """리스트 아이템 클릭시 처리"""
+        text = self.listWidget.currentItem().text()
+
+        for activity in self.scraper.activities:
+            if activity.title in text:
+                self.retranslate_activity_ui(activity)
+                break
+
+    def load_activity_to_list(self):
+        """배달 활동들 리스트에 추가하기 """
+        self.listWidget.clear()
+
+        bike_icon = QtGui.QIcon('./Resources/bicycle.png')
+        walk_icon = QtGui.QIcon('./Resources/walk.png')
+
+        for activity in self.scraper.activities:
+            item = QtWidgets.QListWidgetItem()
+
+            delivery_count = int(activity.delivery_count)
+
+            item.setText(f'[{delivery_count:02}건] {activity.title}')
+
+            if '라이딩' in activity.sport:
+                item.setIcon(bike_icon)
+            else:
+                item.setIcon(walk_icon)
+
+            if activity.description != '':
+                item.setBackground(QtGui.QColor.fromRgb(233, 224, 207))
+            else:
+                item.setBackground(QtGui.QColor.fromRgb(240,247,243))
+
+            self.listWidget.addItem(item)
+
+
+    def load_graph_to_tab(self):
+        """전체 통계 및 월별 통계 그래프 탭에 추가하기"""
+
+        # 전체 통계 그래프 추가하기
+        pixmap = QtGui.QPixmap('./Resources/Graphs/total_graph.png')
+
+        self.chart_label.setScaledContents(True)
+
+        self.chart_label.setPixmap(pixmap)
+
+        # 월별 통계 그래프 각 탭에 추가하기
+        start_date = self.scraper.activities[-1].datetime_format
+        start_year, start_month = start_date.year, start_date.month
+        end_date = self.scraper.activities[0].datetime_format
+        end_year, end_month = end_date.year, end_date.month
+
+        period = []
+        year, month = start_year, start_month
+        while True:
+            period.append((year, month))
+
+            if year == end_year and month == end_month:
+                break
+
+            month += 1
+            if month == 13:
+                month = 1
+                year += 1
+
+        for year, month in period:
+            file_name = f'{year}_{month}_graph.png'
+
+            tab = QtWidgets.QWidget()
+            tab.setObjectName(f'tab_{year}_{month}')
+            chart_label = QtWidgets.QLabel(tab)
+            chart_label.setGeometry(QtCore.QRect(10, 10, 681, 391))
+            chart_label.setObjectName(f"char_label_{year}_{month}")
+            chart_label.setScaledContents(True)
+            chart_label.setPixmap(QtGui.QPixmap(f'./Resources/Graphs/{year}_{month}_graph.png'))
+
+            self.tabWidget.addTab(tab, "")
+            self.tabWidget.setTabText(self.tabWidget.indexOf(tab), f'{year % 100}년 {month}월')
+
     def strava_load_button(self):
         """스트라바로부터 읽어오기 버튼 클릭"""
         # print('check btn')
@@ -438,6 +605,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.retranslate_total_activity_ui(total_activity)
 
+        # 탭 설정
+        self.load_graph_to_tab()
+
+        # 리스트 설정
+        self.load_activity_to_list()
+
+        # 테스트
+        # self.retranslate_activity_ui(self.scraper.activities[0])
 
 import myres_rc
 
